@@ -1,0 +1,42 @@
+{
+    "name": "lazydoomslayer/pine",
+    "description": "A lightweight PHP CLI framework for developer automation.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Luka Jioshvili"
+        }
+    ],
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pine\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/pine"
+    ],
+    "scripts": {
+        "test": "phpunit",
+        "pine": "php bin/pine",
+        "check": [
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
