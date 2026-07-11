@@ -7,9 +7,11 @@ namespace Pine\Console;
 final class Application
 {
     public function __construct(
-        private readonly CommandRegistry $commands,
+        private readonly CommandRegistry         $commands,
         private readonly ApplicationHelpRenderer $helpRenderer,
-    ) {
+        private readonly Output                  $output,
+    )
+    {
     }
 
     public function run(Input $input): int
@@ -25,18 +27,15 @@ final class Application
         $command = $this->commands->find($commandName);
 
         if ($command !== null) {
-            return $command->execute($input);
+            return $command->execute($input, $this->output);
         }
 
-        fwrite(
-            STDERR,
-            sprintf(
-                'Command "%s" was not found.%s',
-                $commandName,
-                PHP_EOL,
-            ),
+  
+        $this->output->error(
+            sprintf('Command "%s" was not found.', $commandName),
         );
 
         return 1;
     }
 }
+

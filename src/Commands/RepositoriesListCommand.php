@@ -6,6 +6,7 @@ namespace Pine\Commands;
 
 use Pine\Console\Command;
 use Pine\Console\Input;
+use Pine\Console\Output;
 
 final class RepositoriesListCommand extends Command
 {
@@ -19,18 +20,19 @@ final class RepositoriesListCommand extends Command
         return 'List Git repositories.';
     }
 
-    public function execute(Input $input): int
+    public function execute(Input $input, Output $output): int
     {
+
         $path = $input->argument(0) ?? getcwd();
         $json = $input->hasOption('json');
-        $depth = (int) ($input->option('depth') ?? 1);
+        $depth = (int)($input->option('depth') ?? 1);
 
-        var_dump([
-            'path' => $path,
-            'json' => $json,
-            'depth' => $depth,
-        ]);
+        $output->info('Repository scan configuration');
+        $output->line("Path: {$path}");
+        $output->line('JSON: ' . ($json ? 'yes' : 'no'));
+        $output->line("Depth: {$depth}");
 
         return 0;
     }
 }
+
