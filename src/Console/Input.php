@@ -11,27 +11,13 @@ final readonly class Input
      */
     public function __construct(
         private array $tokens,
-    ) {
+    )
+    {
     }
 
     public function argument(int $index): ?string
     {
         return $this->arguments()[$index] ?? null;
-    }
-
-    public function hasOption(string $name): bool
-    {
-        return array_key_exists($name, $this->options());
-    }
-
-    public function option(string $name): bool|string|null
-    {
-        return $this->options()[$name] ?? null;
-    }
-
-    public function commandName(): ?string
-    {
-        return $this->tokens[1] ?? null;
     }
 
     /**
@@ -41,10 +27,22 @@ final readonly class Input
     {
         return array_values(array_filter(
             $this->commandTokens(),
-            static fn (string $token): bool => !str_starts_with($token, '--'),
+            static fn(string $token): bool => !str_starts_with($token, '--'),
         ));
     }
 
+    /**
+     * @return list<string>
+     */
+    private function commandTokens(): array
+    {
+        return array_values(array_slice($this->tokens, 2));
+    }
+
+    public function hasOption(string $name): bool
+    {
+        return array_key_exists($name, $this->options());
+    }
 
     /**
      * @return array<string, bool|string>
@@ -73,27 +71,53 @@ final readonly class Input
     /**
      * @return list<string>
      */
+    private function optionTokens(): array
+    {
+        return array_values(array_filter(
+            $this->commandTokens(),
+            static fn(string $token): bool => str_starts_with($token, '--'),
+        ));
+    }
+
+    public function option(string $name): bool|string|null
+    {
+        return $this->options()[$name] ?? null;
+    }
+
+    public function commandName(): ?string
+    {
+        return $this->tokens[1] ?? null;
+    }
+
+    /**
+     * @return list<string>
+     */
     public function tokens(): array
     {
         return $this->commandTokens();
     }
 
-    /**
-     * @return list<string>
-     */
-    private function commandTokens(): array
+    public function confirm(
+        string $question,
+        bool   $default = false,
+    ): bool
     {
-        return array_values(array_slice($this->tokens, 2));
-    }
+        $suffix = $default ? ' [Y/n] ' : ' [y/N] ';
 
-    /**
-     * @return list<string>
-     */
-    private function optionTokens(): array
-    {
-        return array_values(array_filter(
-            $this->commandTokens(),
-            static fn (string $token): bool => str_starts_with($token, '--'),
-        ));
+        fwrite(STDOUT, $question . $suffix);
+
+        $answer = fgets(STDIN);
+
+        if ($answer === false) {
+            return $default;
+        }
+
+        $answer = strtolower(trim($answer));
+
+        if ($answer === '') {
+            return $default;
+        }
+
+        return in_array($answer, ['y', 'yes'], true);
     }
 }
