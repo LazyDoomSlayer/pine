@@ -6,6 +6,7 @@ namespace Pine\Commands;
 
 use Pine\Console\Command;
 use Pine\Console\Input;
+use Pine\Console\JsonRenderer;
 use Pine\Console\Output;
 use Pine\Repositories\Repository;
 use Pine\Repositories\RepositoryInspector;
@@ -25,6 +26,7 @@ final class RepositoriesListCommand extends Command
 
     public function execute(Input $input, Output $output): int
     {
+        $json = $input->hasOption('json');
         $path = $input->argument(0) ?? getcwd();
         $depth = (int)($input->option('depth') ?? 1);
         $scanner = new RepositoryScanner();
@@ -75,6 +77,29 @@ final class RepositoriesListCommand extends Command
                 ),
             },
         );
+
+        if ($json) {
+            $renderer = new JsonRenderer();
+
+            $data = array_map(
+                static fn(Repository $repository): array => [
+                    'name' => $repository->name,
+                    'path' => $repository->path,
+                    'branch' => $repository->branch,
+                    'ahead' => $repository->ahead,
+                    'behind' => $repository->behind,
+                    'dirty' => $repository->dirty,
+                    'lastCommitAt' => $repository->lastCommitTimestamp === null
+                        ? null
+                        : date(DATE_ATOM, $repository->lastCommitTimestamp),
+                ],
+                $repositories,
+            );
+
+            $output->line($renderer->render($data));
+
+            return 0;
+        }
 
         $rows = array_map(
             fn(Repository $repository): array => [
