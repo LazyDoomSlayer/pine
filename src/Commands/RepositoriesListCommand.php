@@ -7,6 +7,7 @@ namespace Pine\Commands;
 use Pine\Console\Command;
 use Pine\Console\Input;
 use Pine\Console\Output;
+use Pine\Repositories\RepositoryScanner;
 
 final class RepositoriesListCommand extends Command
 {
@@ -22,15 +23,25 @@ final class RepositoriesListCommand extends Command
 
     public function execute(Input $input, Output $output): int
     {
-
         $path = $input->argument(0) ?? getcwd();
-        $json = $input->hasOption('json');
         $depth = (int)($input->option('depth') ?? 1);
+        $scanner = new RepositoryScanner();
+        $repositories = $scanner->scan($path, $depth);
 
-        $output->info('Repository scan configuration');
-        $output->line("Path: {$path}");
-        $output->line('JSON: ' . ($json ? 'yes' : 'no'));
-        $output->line("Depth: {$depth}");
+        if ($repositories === []) {
+            $output->warning('No Git repositories found.');
+
+            return 0;
+        }
+
+        foreach ($repositories as $repository) {
+            $output->line(sprintf(
+                '%s  %s',
+                $repository->name,
+                $repository->path,
+            ));
+
+        }
 
         return 0;
     }
