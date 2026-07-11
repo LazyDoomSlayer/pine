@@ -25,7 +25,7 @@ final class Application
         $command = $this->commands->find($commandName);
 
         if ($command !== null) {
-            return $command->execute();
+            return $command->execute($input);
         }
 
         fwrite(

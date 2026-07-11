@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pine\Commands;
 
 use Pine\Console\Command;
+use Pine\Console\Input;
 
 final class RepositoriesListCommand extends Command
 {
@@ -18,9 +19,9 @@ final class RepositoriesListCommand extends Command
         return 'List Git repositories.';
     }
 
-    public function execute(): int
+    public function execute(Input $input): int
     {
-        echo 'Listing repositories...' . PHP_EOL;
+        var_dump($input->tokens());
 
         return 0;
     }

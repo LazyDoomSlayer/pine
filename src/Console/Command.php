@@ -10,5 +10,5 @@ abstract class Command
 
     abstract public function getDescription(): string;
 
-    abstract public function execute(): int;
+    abstract public function execute(Input $input): int;
 }
