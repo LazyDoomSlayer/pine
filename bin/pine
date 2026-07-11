@@ -3,6 +3,10 @@
 
 declare(strict_types=1);
 
+use Pine\Console\Application;
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-echo "Pine CLI" . PHP_EOL;
+$application = new Application();
+
+exit($application->run($argv));
