@@ -30,15 +30,29 @@ final readonly class Input
         ));
     }
 
+
     /**
-     * @return list<string>
+     * @return array<string, bool|string>
      */
     public function options(): array
     {
-        return array_values(array_filter(
-            $this->commandTokens(),
-            static fn (string $token): bool => str_starts_with($token, '--'),
-        ));
+        $options = [];
+
+        foreach ($this->optionTokens() as $token) {
+            $option = substr($token, 2);
+
+            if (!str_contains($option, '=')) {
+                $options[$option] = true;
+
+                continue;
+            }
+
+            [$name, $value] = explode('=', $option, 2);
+
+            $options[$name] = $value;
+        }
+
+        return $options;
     }
 
     /**
@@ -55,5 +69,16 @@ final readonly class Input
     private function commandTokens(): array
     {
         return array_values(array_slice($this->tokens, 2));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function optionTokens(): array
+    {
+        return array_values(array_filter(
+            $this->commandTokens(),
+            static fn (string $token): bool => str_starts_with($token, '--'),
+        ));
     }
 }
