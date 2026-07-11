@@ -34,15 +34,22 @@ final class RepositoriesListCommand extends Command
             return 0;
         }
 
-        foreach ($repositories as $repository) {
-            $output->line(sprintf(
-                '%s  %s',
+        $rows = array_map(
+            static fn($repository): array => [
                 $repository->name,
                 $repository->path,
-            ));
+            ],
+            $repositories,
+        );
 
-        }
-
+        $output->table(
+            headers: ['NAME', 'PATH'],
+            rows: $rows,
+            numbered: true,
+            title: 'Repositories',
+            footer: sprintf('%d repositories found.', count($rows)),
+        );
+        
         return 0;
     }
 }
