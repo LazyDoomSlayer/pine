@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo
+echo "Running Pine verification before push..."
+echo
+
+composer verify
+
+echo
+echo "All checks passed. Continuing push."
+echo
