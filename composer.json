@@ -9,6 +9,9 @@
             "email": "lazydoomslayer@gmail.com"
         }
     ],
+    "scripts": {
+        "pine": "php bin/pine"
+    },
     "bin": [
         "bin/pine"
     ],
