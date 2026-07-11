@@ -23,6 +23,11 @@ final class Container
     private array $instances = [];
 
     /**
+     * @var list<string>
+     */
+    private array $resolving = [];
+
+    /**
      * @param Closure(self): object $factory
      */
     public function bind(string $id, Closure $factory): void
@@ -41,11 +46,44 @@ final class Container
             return $this->instances[$id];
         }
 
-        if (isset($this->bindings[$id])) {
-            return ($this->bindings[$id])($this);
+        $this->guardAgainstCircularDependency($id);
+
+        $this->resolving[] = $id;
+
+        try {
+            if (isset($this->bindings[$id])) {
+                return ($this->bindings[$id])($this);
+            }
+
+            return $this->build($id);
+        } finally {
+            array_pop($this->resolving);
+        }
+    }
+
+    private function guardAgainstCircularDependency(string $id): void
+    {
+        if (!in_array($id, $this->resolving, true)) {
+            return;
         }
 
-        return $this->build($id);
+        $cycleStart = array_search(
+            $id,
+            $this->resolving,
+            true,
+        );
+
+        $cycle = array_slice(
+            $this->resolving,
+            $cycleStart === false ? 0 : $cycleStart,
+        );
+
+        $cycle[] = $id;
+
+        throw new RuntimeException(sprintf(
+            'Circular dependency detected: %s',
+            implode(' -> ', $cycle),
+        ));
     }
 
     private function build(string $id): object
