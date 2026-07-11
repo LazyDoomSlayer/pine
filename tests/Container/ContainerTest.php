@@ -118,6 +118,41 @@ final class ContainerTest extends TestCase
 
         self::assertNotSame($first, $second);
     }
+
+    public function testItDetectsCircularDependencies(): void
+    {
+        $container = new Container();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                'Circular dependency detected: %s -> %s -> %s',
+                CircularDependencyA::class,
+                CircularDependencyB::class,
+                CircularDependencyA::class,
+            ),
+        );
+
+        $container->get(CircularDependencyA::class);
+    }
+}
+
+final readonly class CircularDependencyA
+{
+    public function __construct(
+        public CircularDependencyB $dependency,
+    )
+    {
+    }
+}
+
+final readonly class CircularDependencyB
+{
+    public function __construct(
+        public CircularDependencyA $dependency,
+    )
+    {
+    }
 }
 
 final class SimpleService
