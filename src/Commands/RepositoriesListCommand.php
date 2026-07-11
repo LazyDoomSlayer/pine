@@ -14,6 +14,14 @@ use Pine\Repositories\RepositoryScanner;
 
 final class RepositoriesListCommand extends Command
 {
+    public function __construct(
+        private readonly RepositoryScanner   $scanner,
+        private readonly RepositoryInspector $inspector,
+        private readonly JsonRenderer        $jsonRenderer,
+    )
+    {
+    }
+
     public function getName(): string
     {
         return 'repos:list';
@@ -29,13 +37,10 @@ final class RepositoriesListCommand extends Command
         $json = $input->hasOption('json');
         $path = $input->argument(0) ?? getcwd();
         $depth = (int)($input->option('depth') ?? 1);
-        $scanner = new RepositoryScanner();
-        $repositories = $scanner->scan($path, $depth);
 
-        $inspector = new RepositoryInspector();
-
+        $repositories = $this->scanner->scan($path, $depth);
         $repositories = array_map(
-            static fn(Repository $repository): Repository => $inspector->inspect($repository),
+            fn(Repository $repository): Repository => $this->inspector->inspect($repository),
             $repositories,
         );
 
@@ -79,8 +84,6 @@ final class RepositoriesListCommand extends Command
         );
 
         if ($json) {
-            $renderer = new JsonRenderer();
-
             $data = array_map(
                 static fn(Repository $repository): array => [
                     'name' => $repository->name,
@@ -96,8 +99,7 @@ final class RepositoriesListCommand extends Command
                 $repositories,
             );
 
-            $output->line($renderer->render($data));
-
+            $output->line($this->jsonRenderer->render($data));
             return 0;
         }
 

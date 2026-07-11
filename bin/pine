@@ -9,11 +9,16 @@ use Pine\Console\ApplicationHelpRenderer;
 use Pine\Console\CommandRegistry;
 use Pine\Console\Input;
 use Pine\Console\Output;
+use Pine\Container\Container;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+$container = new Container();
+
 $commands = new CommandRegistry();
-$commands->add(new RepositoriesListCommand());
+$commands->add(
+    $container->get(RepositoriesListCommand::class),
+);
 
 $output = new Output();
 
