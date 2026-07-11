@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pine\Process;
 
-final class ProcessRunner
+final class ProcessRunner implements ProcessRunnerInterface
 {
     /**
      * @param list<string> $command

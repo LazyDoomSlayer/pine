@@ -208,9 +208,19 @@ final class Output
     {
         return $this->color($message, '90');
     }
-    
+
     public function infoText(string $message): string
     {
         return $this->color($message, '36');
+    }
+
+    public function write(string $message): void
+    {
+        echo $message;
+    }
+
+    public function clearLine(): void
+    {
+        echo "\r\033[2K";
     }
 }
