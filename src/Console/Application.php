@@ -15,6 +15,12 @@ final class Application
     {
         $commandName = $arguments[1] ?? null;
 
+        if ($commandName === null) {
+            $this->renderHelp();
+
+            return 0;
+        }
+
         $command = new RepositoriesListCommand();
 
         if ($command->getName() === $commandName) {
@@ -23,10 +29,26 @@ final class Application
 
         fwrite(STDERR, sprintf(
             'Command "%s" was not found.%s',
-            $commandName ?? '',
+            $commandName,
             PHP_EOL,
         ));
 
         return 1;
+    }
+
+    private function renderHelp(): void
+    {
+        echo <<<'TEXT'
+        Pine CLI
+
+        Usage:
+          pine <command>
+
+        Available commands:
+          repos:list    List Git repositories
+
+        TEXT;
+
+        echo PHP_EOL;
     }
 }
