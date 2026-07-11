@@ -3,16 +3,40 @@
 
 declare(strict_types=1);
 
+use Pine\Audit\AuditManager;
+use Pine\Audit\CargoAuditor;
+use Pine\Audit\NpmAuditor;
+use Pine\Audit\PnpmAuditor;
+use Pine\Audit\YarnAuditor;
 use Pine\Console\Application;
 use Pine\Console\ApplicationHelpRenderer;
 use Pine\Console\CommandDiscovery;
 use Pine\Console\Input;
 use Pine\Console\Output;
 use Pine\Container\Container;
+use Pine\Process\ProcessRunner;
+use Pine\Process\ProcessRunnerInterface;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $container = new Container();
+
+$container->bind(
+    ProcessRunnerInterface::class,
+    static fn(): ProcessRunner => new ProcessRunner(),
+);
+
+$container->bind(
+    AuditManager::class,
+    static function (Container $container): AuditManager {
+        return new AuditManager([
+            $container->get(PnpmAuditor::class),
+            $container->get(NpmAuditor::class),
+            $container->get(YarnAuditor::class),
+            $container->get(CargoAuditor::class),
+        ]);
+    },
+);
 
 $discovery = new CommandDiscovery($container);
 
