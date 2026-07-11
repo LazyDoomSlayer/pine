@@ -85,7 +85,7 @@ trait CreatesGitRepositories
         string $repositoriesDirectory,
         string $name,
         bool   $dirty,
-    ): void
+    ): string
     {
         $remotesDirectory = $this->temporaryDirectory
             . DIRECTORY_SEPARATOR
@@ -190,6 +190,8 @@ trait CreatesGitRepositories
                 'This file is not committed.' . PHP_EOL,
             );
         }
+
+        return $repositoryPath;
     }
 
     /**
