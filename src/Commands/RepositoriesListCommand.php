@@ -7,6 +7,8 @@ namespace Pine\Commands;
 use Pine\Console\Command;
 use Pine\Console\Input;
 use Pine\Console\Output;
+use Pine\Repositories\Repository;
+use Pine\Repositories\RepositoryInspector;
 use Pine\Repositories\RepositoryScanner;
 
 final class RepositoriesListCommand extends Command
@@ -28,29 +30,132 @@ final class RepositoriesListCommand extends Command
         $scanner = new RepositoryScanner();
         $repositories = $scanner->scan($path, $depth);
 
+        $inspector = new RepositoryInspector();
+
+        $repositories = array_map(
+            static fn(Repository $repository): Repository => $inspector->inspect($repository),
+            $repositories,
+        );
+
         if ($repositories === []) {
             $output->warning('No Git repositories found.');
 
             return 0;
         }
 
+        $sort = $input->option('sort');
+
+        if (!is_string($sort)) {
+            $sort = 'name';
+        }
+
+        usort(
+            $repositories,
+            match ($sort) {
+                'modified' => static fn(
+                    Repository $left,
+                    Repository $right,
+                ): int => ($right->lastCommitTimestamp ?? 0)
+                    <=> ($left->lastCommitTimestamp ?? 0),
+
+                'branch' => static fn(
+                    Repository $left,
+                    Repository $right,
+                ): int => strcasecmp(
+                    $left->branch ?? '',
+                    $right->branch ?? '',
+                ),
+
+                default => static fn(
+                    Repository $left,
+                    Repository $right,
+                ): int => strcasecmp(
+                    $left->name,
+                    $right->name,
+                ),
+            },
+        );
+
         $rows = array_map(
-            static fn($repository): array => [
+            fn(Repository $repository): array => [
                 $repository->name,
+                $repository->branch ?? '—',
+                $this->formatAheadBehind($repository, $output),
+                $this->formatWorktree($repository, $output),
+                self::formatModified($repository->lastCommitTimestamp),
                 $repository->path,
             ],
             $repositories,
         );
 
         $output->table(
-            headers: ['NAME', 'PATH'],
+            headers: [
+                'NAME',
+                'BRANCH',
+                'SYNC',
+                'WORKTREE',
+                'MODIFIED',
+                'PATH',
+            ],
             rows: $rows,
             numbered: true,
             title: 'Repositories',
-            footer: sprintf('%d repositories found.', count($rows)),
+            footer: sprintf(
+                '%d repositories found.',
+                count($rows),
+            ),
         );
-        
+
         return 0;
+    }
+
+    private function formatAheadBehind(
+        Repository $repository,
+        Output     $output,
+    ): string
+    {
+        if ($repository->ahead === null || $repository->behind === null) {
+            return $output->mutedText('no upstream');
+        }
+
+        if ($repository->ahead === 0 && $repository->behind === 0) {
+            return $output->successText('synced');
+        }
+
+        if ($repository->ahead > 0 && $repository->behind > 0) {
+            return $output->errorText(sprintf(
+                '↑%d ↓%d',
+                $repository->ahead,
+                $repository->behind,
+            ));
+        }
+
+        return $output->warningText(sprintf(
+            '↑%d ↓%d',
+            $repository->ahead,
+            $repository->behind,
+        ));
+    }
+
+    private function formatWorktree(
+        Repository $repository,
+        Output     $output,
+    ): string
+    {
+        return match ($repository->dirty) {
+            true => $output->warningText('dirty'),
+            false => $output->successText('clean'),
+            null => $output->mutedText('unknown'),
+        };
+    }
+
+    private static function formatModified(?int $timestamp): string
+    {
+        if ($timestamp === null) {
+            return '—';
+        }
+
+        return date('Y-m-d H:i', $timestamp);
     }
 }
 
