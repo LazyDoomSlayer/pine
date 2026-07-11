@@ -21,7 +21,10 @@ final class RepositoriesListCommand extends Command
 
     public function execute(Input $input): int
     {
-        var_dump($input->tokens());
+        var_dump([
+            'arguments' => $input->arguments(),
+            'options' => $input->options(),
+        ]);
 
         return 0;
     }
