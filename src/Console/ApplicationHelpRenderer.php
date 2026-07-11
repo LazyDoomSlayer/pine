@@ -6,59 +6,68 @@ namespace Pine\Console;
 
 final class ApplicationHelpRenderer
 {
+    public function __construct(
+        private readonly Output $output,
+    )
+    {
+    }
+
     /**
      * @param list<Command> $commands
      */
     public function render(array $commands): void
     {
-        echo PHP_EOL;
-        echo $this->renderBanner();
-        echo PHP_EOL;
-        echo 'A modern CLI framework for PHP.' . PHP_EOL;
-        echo PHP_EOL;
+        $this->output->line();
 
-        echo 'USAGE' . PHP_EOL;
-        echo PHP_EOL;
-        echo '  pine <command> [arguments] [options]' . PHP_EOL;
-        echo PHP_EOL;
+        $this->output->info($this->renderBanner());
+        $this->output->muted('A modern CLI framework for PHP.');
 
-        echo 'AVAILABLE COMMANDS' . PHP_EOL;
-        echo PHP_EOL;
+        $this->output->line();
+
+        $this->output->info('USAGE');
+        $this->output->line();
+        $this->output->line('  pine <command> [arguments] [options]');
+
+        $this->output->line();
+
+        $this->output->info('AVAILABLE COMMANDS');
+        $this->output->line();
 
         foreach ($commands as $command) {
-            printf(
-                "  %-20s %s%s",
+            $this->output->line(sprintf(
+                '  %-20s %s',
                 $command->getName(),
                 $command->getDescription(),
-                PHP_EOL,
-            );
+            ));
         }
 
-        echo PHP_EOL;
+        $this->output->line();
 
-        echo 'GLOBAL OPTIONS' . PHP_EOL;
-        echo PHP_EOL;
-        echo '  -h, --help           Display help information.' . PHP_EOL;
-        echo '  -V, --version        Display the Pine version.' . PHP_EOL;
-        echo PHP_EOL;
+        $this->output->info('GLOBAL OPTIONS');
+        $this->output->line();
+        $this->output->line('  -h, --help           Display help information.');
+        $this->output->line('  -V, --version        Display the Pine version.');
 
-        echo 'COMMAND HELP' . PHP_EOL;
-        echo PHP_EOL;
-        echo '  Run a command with --help for detailed information:' . PHP_EOL;
-        echo PHP_EOL;
-        echo '  pine <command> --help' . PHP_EOL;
-        echo PHP_EOL;
+        $this->output->line();
+
+        $this->output->info('COMMAND HELP');
+        $this->output->line();
+        $this->output->muted('  Run a command with --help for detailed information:');
+        $this->output->line();
+        $this->output->success('  pine <command> --help');
+
+        $this->output->line();
     }
 
     private function renderBanner(): string
     {
         return <<<'BANNER'
-        ██████╗ ██╗███╗   ██╗███████╗
-        ██╔══██╗██║████╗  ██║██╔════╝
-        ██████╔╝██║██╔██╗ ██║█████╗
-        ██╔═══╝ ██║██║╚██╗██║██╔══╝
-        ██║     ██║██║ ╚████║███████╗
-        ╚═╝     ╚═╝╚═╝  ╚═══╝╚══════╝
-        BANNER;
+██████╗ ██╗███╗   ██╗███████╗      ▄██▄
+██╔══██╗██║████╗  ██║██╔════╝    ▄██████▄
+██████╔╝██║██╔██╗ ██║█████╗     ██████████
+██╔═══╝ ██║██║╚██╗██║██╔══╝      ▀██████▀
+██║     ██║██║ ╚████║███████╗      ▐██▌
+╚═╝     ╚═╝╚═╝  ╚═══╝╚══════╝       ▐▌
+BANNER;
     }
 }

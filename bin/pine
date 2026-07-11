@@ -19,7 +19,7 @@ $output = new Output();
 
 $application = new Application(
     commands: $commands,
-    helpRenderer: new ApplicationHelpRenderer(),
+    helpRenderer: new ApplicationHelpRenderer($output),
     output: $output,
 );
 
