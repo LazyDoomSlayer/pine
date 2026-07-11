@@ -8,12 +8,17 @@ final class Output
 {
     public function success(string $message): void
     {
-        $this->line($this->color($message, '32'));
+        $this->line($this->successText($message));
     }
 
     public function line(string $message = ''): void
     {
         echo $message . PHP_EOL;
+    }
+
+    public function successText(string $message): string
+    {
+        return $this->color($message, '32');
     }
 
     private function color(string $message, string $code): string
@@ -27,15 +32,25 @@ final class Output
 
     public function warning(string $message): void
     {
-        $this->line($this->color($message, '33'));
+        $this->line($this->warningText($message));
+    }
+
+    public function warningText(string $message): string
+    {
+        return $this->color($message, '33');
     }
 
     public function error(string $message): void
     {
         fwrite(
             STDERR,
-            $this->color($message, '31') . PHP_EOL,
+            $this->errorText($message) . PHP_EOL,
         );
+    }
+
+    public function errorText(string $message): string
+    {
+        return $this->color($message, '31');
     }
 
     /**
@@ -103,7 +118,7 @@ final class Output
     ): array
     {
         $columnWidths = array_map(
-            static fn(string $header): int => strlen($header),
+            fn(string $header): int => $this->displayWidth($header),
             $headers,
         );
 
@@ -111,12 +126,27 @@ final class Output
             foreach ($row as $index => $value) {
                 $columnWidths[$index] = max(
                     $columnWidths[$index] ?? 0,
-                    strlen($value),
+                    $this->displayWidth($value),
                 );
             }
         }
 
         return $columnWidths;
+    }
+
+    private function displayWidth(string $value): int
+    {
+        $plainValue = preg_replace(
+            '/\033\[[0-9;]*m/',
+            '',
+            $value,
+        );
+
+        if ($plainValue === null) {
+            $plainValue = $value;
+        }
+
+        return mb_strwidth($plainValue, 'UTF-8');
     }
 
     /**
@@ -133,10 +163,27 @@ final class Output
         foreach ($columnWidths as $index => $width) {
             $value = $row[$index] ?? '';
 
-            $cells[] = str_pad($value, $width);
+            $cells[] = $this->padRight(
+                $value,
+                $width,
+            );
         }
 
         $this->line('  ' . implode('  ', $cells));
+    }
+
+    private function padRight(
+        string $value,
+        int    $width,
+    ): string
+    {
+        return $value . str_repeat(
+                ' ',
+                max(
+                    0,
+                    $width - $this->displayWidth($value),
+                ),
+            );
     }
 
     /**
@@ -154,6 +201,16 @@ final class Output
 
     public function muted(string $message): void
     {
-        $this->line($this->color($message, '90'));
+        $this->line($this->mutedText($message));
+    }
+
+    public function mutedText(string $message): string
+    {
+        return $this->color($message, '90');
+    }
+    
+    public function infoText(string $message): string
+    {
+        return $this->color($message, '36');
     }
 }
