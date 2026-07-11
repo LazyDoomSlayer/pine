@@ -15,15 +15,18 @@ final class Application
     {
         $commandName = $arguments[1] ?? null;
 
-        var_dump($commandName);
+        $command = new RepositoriesListCommand();
 
-        if ($commandName === 'repos:list') {
-            $command = new RepositoriesListCommand();
-
+        if ($command->getName() === $commandName) {
             return $command->execute();
         }
 
+        fwrite(STDERR, sprintf(
+            'Command "%s" was not found.%s',
+            $commandName ?? '',
+            PHP_EOL,
+        ));
 
-        return 0;
+        return 1;
     }
 }
