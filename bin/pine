@@ -3,10 +3,19 @@
 
 declare(strict_types=1);
 
+use Pine\Commands\RepositoriesListCommand;
 use Pine\Console\Application;
+use Pine\Console\ApplicationHelpRenderer;
+use Pine\Console\CommandRegistry;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$application = new Application();
+$commands = new CommandRegistry();
+$commands->add(new RepositoriesListCommand());
+
+$application = new Application(
+    commands: $commands,
+    helpRenderer: new ApplicationHelpRenderer(),
+);
 
 exit($application->run($argv));
