@@ -12,12 +12,9 @@ final class Application
     ) {
     }
 
-    /**
-     * @param array<int, string> $arguments
-     */
-    public function run(array $arguments): int
+    public function run(Input $input): int
     {
-        $commandName = $arguments[1] ?? null;
+        $commandName = $input->commandName();
 
         if ($commandName === null) {
             $this->helpRenderer->render($this->commands->all());
