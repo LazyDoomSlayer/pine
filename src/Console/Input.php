@@ -14,6 +14,21 @@ final readonly class Input
     ) {
     }
 
+    public function argument(int $index): ?string
+    {
+        return $this->arguments()[$index] ?? null;
+    }
+
+    public function hasOption(string $name): bool
+    {
+        return array_key_exists($name, $this->options());
+    }
+
+    public function option(string $name): bool|string|null
+    {
+        return $this->options()[$name] ?? null;
+    }
+
     public function commandName(): ?string
     {
         return $this->tokens[1] ?? null;

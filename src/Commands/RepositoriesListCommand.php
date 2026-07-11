@@ -21,9 +21,14 @@ final class RepositoriesListCommand extends Command
 
     public function execute(Input $input): int
     {
+        $path = $input->argument(0) ?? getcwd();
+        $json = $input->hasOption('json');
+        $depth = (int) ($input->option('depth') ?? 1);
+
         var_dump([
-            'arguments' => $input->arguments(),
-            'options' => $input->options(),
+            'path' => $path,
+            'json' => $json,
+            'depth' => $depth,
         ]);
 
         return 0;
