@@ -11,6 +11,7 @@ use Pine\Audit\YarnAuditor;
 use Pine\Console\Application;
 use Pine\Console\ApplicationHelpRenderer;
 use Pine\Console\CommandDiscovery;
+use Pine\Console\CommandHelpRenderer;
 use Pine\Console\Input;
 use Pine\Console\Output;
 use Pine\Container\Container;
@@ -50,6 +51,7 @@ $output = new Output();
 $application = new Application(
     commands: $commands,
     helpRenderer: new ApplicationHelpRenderer($output),
+    commandHelpRenderer: new CommandHelpRenderer($output),
     output: $output,
 );
 
