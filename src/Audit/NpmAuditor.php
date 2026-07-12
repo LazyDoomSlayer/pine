@@ -16,11 +16,6 @@ final readonly class NpmAuditor implements DependencyAuditor
     {
     }
 
-    public function ecosystem(): string
-    {
-        return 'npm';
-    }
-
     public function supports(Repository $repository): bool
     {
 
@@ -125,6 +120,24 @@ final readonly class NpmAuditor implements DependencyAuditor
         ]);
 
         return $result->successful();
+    }
+
+    private function failure(
+        Repository $repository,
+        string     $error,
+    ): AuditResult
+    {
+        return new AuditResult(
+            repository: $repository,
+            ecosystem: $this->ecosystem(),
+            successful: false,
+            error: $error,
+        );
+    }
+
+    public function ecosystem(): string
+    {
+        return 'npm';
     }
 
     private function extractError(mixed $error): string
