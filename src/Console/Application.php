@@ -6,9 +6,11 @@ namespace Pine\Console;
 
 final class Application
 {
+
     public function __construct(
         private readonly CommandRegistry         $commands,
         private readonly ApplicationHelpRenderer $helpRenderer,
+        private readonly CommandHelpRenderer     $commandHelpRenderer,
         private readonly Output                  $output,
     )
     {
@@ -24,18 +26,25 @@ final class Application
             return 0;
         }
 
-        $command = $this->commands->find($commandName);
+        $command = $this->commands->get($commandName);
 
-        if ($command !== null) {
-            return $command->execute($input, $this->output);
+        if ($command === null) {
+            $this->output->error(
+                sprintf('Command "%s" was not found.', $commandName),
+            );
+
+            return 1;
         }
 
-  
-        $this->output->error(
-            sprintf('Command "%s" was not found.', $commandName),
-        );
+        if ($input->hasOption('help') || $input->hasOption('h')) {
+            $this->commandHelpRenderer->render(
+                $command->definition(),
+            );
 
-        return 1;
+            return 0;
+        }
+
+        return $command->execute($input, $this->output);
     }
 }
 
