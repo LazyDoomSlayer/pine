@@ -23,8 +23,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -90,6 +90,19 @@ final class NpmAuditorTest extends TestCase
         );
     }
 
+    private function auditRunner(
+        ProcessResult $auditResult,
+    ): FakeProcessRunner
+    {
+        return new FakeProcessRunner(
+            new ProcessResult(
+                exitCode: 0,
+                output: '/usr/bin/npm',
+            ),
+            $auditResult,
+        );
+    }
+
     private function repository(): Repository
     {
         return new Repository(
@@ -124,7 +137,7 @@ final class NpmAuditorTest extends TestCase
     private function fakeRunner(): FakeProcessRunner
     {
         return new FakeProcessRunner(
-            result: new ProcessResult(
+            new ProcessResult(
                 exitCode: 0,
                 output: '{}',
             ),
@@ -185,8 +198,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 0,
                 output: json_encode(
                     [
@@ -234,8 +247,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -248,14 +261,11 @@ final class NpmAuditorTest extends TestCase
                                 'via' => [
                                     [
                                         'source' => 1117063,
-                                        'name' => '@nestjs/core',
-                                        'dependency' => '@nestjs/core',
                                         'title' => 'NestJS core injection vulnerability',
                                         'url' => 'https://github.com/advisories/GHSA-36xv-jgw5-4q75',
                                         'severity' => 'moderate',
                                         'cvss' => [
                                             'score' => 6.1,
-                                            'vectorString' => 'CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:N/A:L',
                                         ],
                                         'range' => '<=11.1.17',
                                     ],
@@ -333,8 +343,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -400,8 +410,8 @@ final class NpmAuditorTest extends TestCase
             '{}',
         );
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -452,8 +462,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -500,8 +510,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -560,8 +570,8 @@ final class NpmAuditorTest extends TestCase
             ],
         ]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [
@@ -608,8 +618,8 @@ final class NpmAuditorTest extends TestCase
     {
         $this->createNpmProject([]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: 'not valid json',
             ),
@@ -627,12 +637,13 @@ final class NpmAuditorTest extends TestCase
         );
     }
 
+
     public function testItReturnsFailureWhenNpmReturnsNoOutput(): void
     {
         $this->createNpmProject([]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: '',
             ),
@@ -652,8 +663,8 @@ final class NpmAuditorTest extends TestCase
     {
         $this->createNpmProject([]);
 
-        $runner = new FakeProcessRunner(
-            result: new ProcessResult(
+        $runner = $this->auditRunner(
+            new ProcessResult(
                 exitCode: 1,
                 output: json_encode(
                     [

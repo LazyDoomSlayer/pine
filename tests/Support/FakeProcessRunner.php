@@ -6,6 +6,7 @@ namespace Pine\Tests\Support;
 
 use Pine\Process\ProcessResult;
 use Pine\Process\ProcessRunnerInterface;
+use RuntimeException;
 
 final class FakeProcessRunner implements ProcessRunnerInterface
 {
@@ -15,12 +16,20 @@ final class FakeProcessRunner implements ProcessRunnerInterface
     public array $lastCommand = [];
 
     /**
-     * @param array<string, string> $environment
+     * @var list<list<string>>
      */
+    public array $commands = [];
+
+    /**
+     * @var list<ProcessResult>
+     */
+    private array $results;
+
     public function __construct(
-        private readonly ProcessResult $result,
+        ProcessResult ...$results,
     )
     {
+        $this->results = $results;
     }
 
     public function run(
@@ -29,7 +38,16 @@ final class FakeProcessRunner implements ProcessRunnerInterface
     ): ProcessResult
     {
         $this->lastCommand = $command;
+        $this->commands[] = $command;
 
-        return $this->result;
+        $result = array_shift($this->results);
+
+        if (!$result instanceof ProcessResult) {
+            throw new RuntimeException(
+                'No fake process result was configured.',
+            );
+        }
+
+        return $result;
     }
 }
