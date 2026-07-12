@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Pine\Console;
 
+use Pine\Console\Command\Command;
+use RuntimeException;
+
 final class CommandRegistry
 {
     /**
@@ -11,21 +14,34 @@ final class CommandRegistry
      */
     private array $commands = [];
 
-    public function add(Command $command): void
+    public function register(Command $command): void
     {
-        $this->commands[$command->getName()] = $command;
+        $name = $command->definition()->name;
+
+        if (isset($this->commands[$name])) {
+            throw new RuntimeException(
+                sprintf('Command "%s" is already registered.', $name),
+            );
+        }
+
+        $this->commands[$name] = $command;
     }
 
-    public function find(string $name): ?Command
+    public function get(string $name): ?Command
     {
         return $this->commands[$name] ?? null;
     }
 
+    public function has(string $name): bool
+    {
+        return isset($this->commands[$name]);
+    }
+
     /**
-     * @return list<Command>
+     * @return array<string, Command>
      */
     public function all(): array
     {
-        return array_values($this->commands);
+        return $this->commands;
     }
 }

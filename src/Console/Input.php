@@ -27,7 +27,7 @@ final readonly class Input
     {
         return array_values(array_filter(
             $this->commandTokens(),
-            static fn(string $token): bool => !str_starts_with($token, '--'),
+            static fn(string $token): bool => !str_starts_with($token, '-'),
         ));
     }
 
@@ -52,7 +52,11 @@ final readonly class Input
         $options = [];
 
         foreach ($this->optionTokens() as $token) {
-            $option = substr($token, 2);
+            if (str_starts_with($token, '--')) {
+                $option = substr($token, 2);
+            } else {
+                $option = substr($token, 1);
+            }
 
             if (!str_contains($option, '=')) {
                 $options[$option] = true;
@@ -75,7 +79,13 @@ final readonly class Input
     {
         return array_values(array_filter(
             $this->commandTokens(),
-            static fn(string $token): bool => str_starts_with($token, '--'),
+            static function (string $token): bool {
+                return str_starts_with($token, '--')
+                    || (
+                        str_starts_with($token, '-')
+                        && strlen($token) === 2
+                    );
+            },
         ));
     }
 

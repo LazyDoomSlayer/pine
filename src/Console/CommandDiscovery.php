@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pine\Console;
 
 use FilesystemIterator;
+use Pine\Console\Command\Command;
 use Pine\Container\Container;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -43,7 +44,7 @@ final readonly class CommandDiscovery
 
             if (
                 $reflection->isAbstract()
-                || !$reflection->isSubclassOf(Command::class)
+                || !$reflection->implementsInterface(Command::class)
             ) {
                 continue;
             }
@@ -57,7 +58,7 @@ final readonly class CommandDiscovery
                 ));
             }
 
-            $registry->add($command);
+            $registry->register($command);
         }
 
         return $registry;
