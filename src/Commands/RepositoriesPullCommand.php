@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Pine\Commands;
 
-use Pine\Console\Command;
+use Pine\Console\Command\AbstractCommand;
+use Pine\Console\Definition\ArgumentDefinition;
+use Pine\Console\Definition\CommandDefinition;
+use Pine\Console\Definition\OptionDefinition;
 use Pine\Console\Input;
 use Pine\Console\Output;
 use Pine\Repositories\PullResult;
@@ -13,7 +16,7 @@ use Pine\Repositories\RepositoryInspector;
 use Pine\Repositories\RepositoryPuller;
 use Pine\Repositories\RepositoryScanner;
 
-final class RepositoriesPullCommand extends Command
+final class RepositoriesPullCommand extends AbstractCommand
 {
     public function __construct(
         private RepositoryScanner   $scanner,
@@ -206,6 +209,41 @@ final class RepositoriesPullCommand extends Command
             count($results),
             $skipped,
             $failed,
+        );
+    }
+
+    protected function configure(): CommandDefinition
+    {
+        return new CommandDefinition(
+            name: 'repos:pull',
+            description: 'Pull the latest changes for discovered Git repositories.',
+            arguments: [
+                new ArgumentDefinition(
+                    name: 'path',
+                    description: 'Directory in which repository scanning begins.',
+                    default: '.',
+                ),
+            ],
+            options: [
+                new OptionDefinition(
+                    name: 'depth',
+                    description: 'Maximum directory scanning depth.',
+                    acceptsValue: true,
+                    default: '2',
+                    valueName: 'LEVEL',
+                ),
+                new OptionDefinition(
+                    name: 'yes',
+                    description: 'Skip the confirmation prompt.',
+                    shortcut: 'y',
+                ),
+            ],
+            examples: [
+                'pine repos:pull',
+                'pine repos:pull ~/Projects',
+                'pine repos:pull ~/Projects --depth=3',
+                'pine repos:pull ~/Projects --yes',
+            ],
         );
     }
 }

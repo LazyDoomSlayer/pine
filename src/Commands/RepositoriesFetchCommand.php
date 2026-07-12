@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Pine\Commands;
 
-use Pine\Console\Command;
+use Pine\Console\Command\AbstractCommand;
+use Pine\Console\Definition\ArgumentDefinition;
+use Pine\Console\Definition\CommandDefinition;
+use Pine\Console\Definition\OptionDefinition;
 use Pine\Console\Input;
 use Pine\Console\Output;
 use Pine\Repositories\FetchResult;
@@ -13,7 +16,7 @@ use Pine\Repositories\RepositoryFetcher;
 use Pine\Repositories\RepositoryInspector;
 use Pine\Repositories\RepositoryScanner;
 
-final class RepositoriesFetchCommand extends Command
+final class RepositoriesFetchCommand extends AbstractCommand
 {
     public function __construct(
         private RepositoryScanner   $scanner,
@@ -117,5 +120,40 @@ final class RepositoriesFetchCommand extends Command
         );
 
         return $failed === 0 ? 0 : 1;
+    }
+
+    protected function configure(): CommandDefinition
+    {
+        return new CommandDefinition(
+            name: 'repos:fetch',
+            description: 'Fetch updates for discovered Git repositories.',
+            arguments: [
+                new ArgumentDefinition(
+                    name: 'path',
+                    description: 'Directory in which repository scanning begins.',
+                    default: '.',
+                ),
+            ],
+            options: [
+                new OptionDefinition(
+                    name: 'depth',
+                    description: 'Maximum directory scanning depth.',
+                    acceptsValue: true,
+                    default: '1',
+                    valueName: 'LEVEL',
+                ),
+                new OptionDefinition(
+                    name: 'yes',
+                    description: 'Skip the confirmation prompt.',
+                    shortcut: 'y',
+                ),
+            ],
+            examples: [
+                'pine repos:fetch',
+                'pine repos:fetch ~/Projects',
+                'pine repos:fetch ~/Projects --depth=3',
+                'pine repos:fetch ~/Projects --yes',
+            ],
+        );
     }
 }

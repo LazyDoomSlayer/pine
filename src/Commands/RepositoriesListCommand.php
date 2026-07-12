@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Pine\Commands;
 
-use Pine\Console\Command;
+use Pine\Console\Command\AbstractCommand;
+use Pine\Console\Definition\ArgumentDefinition;
+use Pine\Console\Definition\CommandDefinition;
+use Pine\Console\Definition\OptionDefinition;
 use Pine\Console\Input;
 use Pine\Console\JsonRenderer;
 use Pine\Console\Output;
@@ -12,7 +15,7 @@ use Pine\Repositories\Repository;
 use Pine\Repositories\RepositoryInspector;
 use Pine\Repositories\RepositoryScanner;
 
-final class RepositoriesListCommand extends Command
+final class RepositoriesListCommand extends AbstractCommand
 {
     public function __construct(
         private readonly RepositoryScanner   $scanner,
@@ -183,6 +186,43 @@ final class RepositoriesListCommand extends Command
         }
 
         return date('Y-m-d H:i', $timestamp);
+    }
+
+    protected function configure(): CommandDefinition
+    {
+        return new CommandDefinition(
+            name: 'repos:list',
+            description: 'Discover Git repositories inside a directory.',
+            arguments: [
+                new ArgumentDefinition(
+                    name: 'path',
+                    description: 'Directory in which repository scanning begins.',
+                    required: false,
+                    default: '.',
+                ),
+            ],
+            options: [
+                new OptionDefinition(
+                    name: 'depth',
+                    description: 'Maximum directory scanning depth.',
+                    acceptsValue: true,
+                    default: '2',
+                    valueName: 'LEVEL',
+                ),
+                new OptionDefinition(
+                    name: 'json',
+                    description: 'Output discovered repositories as JSON.',
+                ),
+            ],
+            examples: [
+                'pine repos:list',
+                'pine repos:list ~/Projects',
+                'pine repos:list ~/Projects --depth=3',
+                'pine repos:list ~/Projects --json',
+            ],
+
+        );
+
     }
 }
 

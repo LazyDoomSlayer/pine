@@ -7,14 +7,17 @@ namespace Pine\Commands;
 use Pine\Audit\AuditFinding;
 use Pine\Audit\AuditManager;
 use Pine\Audit\AuditResult;
-use Pine\Console\Command;
+use Pine\Console\Command\AbstractCommand;
+use Pine\Console\Definition\ArgumentDefinition;
+use Pine\Console\Definition\CommandDefinition;
+use Pine\Console\Definition\OptionDefinition;
 use Pine\Console\Input;
 use Pine\Console\JsonRenderer;
 use Pine\Console\Output;
 use Pine\Repositories\Repository;
 use Pine\Repositories\RepositoryScanner;
 
-final class RepositoriesAuditCommand extends Command
+final class RepositoriesAuditCommand extends AbstractCommand
 {
     public function __construct(
         private RepositoryScanner $scanner,
@@ -464,5 +467,31 @@ final class RepositoriesAuditCommand extends Command
         }
 
         return 0;
+    }
+
+    protected function configure(): CommandDefinition
+    {
+        return new CommandDefinition(
+            name: 'repos:audit',
+            description: 'Audit project dependencies for known security vulnerabilities.',
+            arguments: [
+                new ArgumentDefinition(
+                    name: 'path',
+                    description: 'Project directory to audit.',
+                    default: '.',
+                ),
+            ],
+            options: [
+                new OptionDefinition(
+                    name: 'json',
+                    description: 'Output audit results as JSON.',
+                ),
+            ],
+            examples: [
+                'pine audit',
+                'pine audit ~/Projects/MyApp',
+                'pine audit --json',
+            ],
+        );
     }
 }

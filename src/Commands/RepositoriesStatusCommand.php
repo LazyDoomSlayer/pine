@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Pine\Commands;
 
-use Pine\Console\Command;
+use Pine\Console\Command\AbstractCommand;
+use Pine\Console\Definition\ArgumentDefinition;
+use Pine\Console\Definition\CommandDefinition;
+use Pine\Console\Definition\OptionDefinition;
 use Pine\Console\Input;
 use Pine\Console\JsonRenderer;
 use Pine\Console\Output;
@@ -12,7 +15,7 @@ use Pine\Repositories\Repository;
 use Pine\Repositories\RepositoryInspector;
 use Pine\Repositories\RepositoryScanner;
 
-final class RepositoriesStatusCommand extends Command
+final class RepositoriesStatusCommand extends AbstractCommand
 {
     public function __construct(
         private readonly RepositoryScanner   $scanner,
@@ -210,5 +213,38 @@ final class RepositoriesStatusCommand extends Command
             false => $output->successText('clean'),
             null => $output->mutedText('unknown'),
         };
+    }
+
+    protected function configure(): CommandDefinition
+    {
+        return new CommandDefinition(
+            name: 'repos:status',
+            description: 'Display the Git status of discovered repositories.',
+            arguments: [
+                new ArgumentDefinition(
+                    name: 'path',
+                    description: 'Directory in which repository scanning begins.',
+                    default: '.',
+                ),
+            ],
+            options: [
+                new OptionDefinition(
+                    name: 'depth',
+                    description: 'Maximum directory scanning depth.',
+                    acceptsValue: true,
+                    default: '2',
+                    valueName: 'LEVEL',
+                ),
+                new OptionDefinition(
+                    name: 'json',
+                    description: 'Output repository statuses as JSON.',
+                ),
+            ],
+            examples: [
+                'pine repos:status',
+                'pine repos:status ~/Projects --depth=3',
+                'pine repos:status ~/Projects --json',
+            ],
+        );
     }
 }
